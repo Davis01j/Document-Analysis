@@ -15,6 +15,7 @@ provider "azurerm" {
   features {}
 }
 
+
 # ─── Variables ────────────────────────────────────────────────────────────────
 # ‼️ Default region changed to West US 3
 variable "location"            { default = "westus3" }
@@ -64,7 +65,10 @@ resource "azurerm_cosmosdb_account" "dataproject_cosmos" {
   }
 
   is_virtual_network_filter_enabled = true
-  virtual_network_rule { id = azurerm_subnet.dataproject_subnet.id }
+  virtual_network_rule {
+    id = azurerm_subnet.dataproject_subnet.id
+    ignore_missing_vnet_service_endpoint = false
+  }
 }
 
 # ─── Azure Cognitive Search ──────────────────────────────────────────────────
@@ -93,8 +97,12 @@ resource "azurerm_cognitive_account" "dataproject_openai" {
 
   network_acls {
     default_action = "Deny"
-    virtual_network_rules { subnet_id = azurerm_subnet.dataproject_subnet.id }
-    ip_rules = []
+    ip_rules       = []
+
+    virtual_network_rules {
+      subnet_id = azurerm_subnet.dataproject_subnet.id
+      ignore_missing_vnet_service_endpoint = false
+    }
   }
 }
 
